@@ -1,3 +1,10 @@
 pandas
+scikit-learn
 numpy
-dvc
+seaborn
+ipykernel
+Flask
+mlflow==2.2.2
+apache-airflow
+pendulum
+-e .

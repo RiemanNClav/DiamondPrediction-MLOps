@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Diamond Price Prediction</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #b78628; /* Oro */
+            margin-bottom: 25px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            text-align: left;
+            margin-bottom: 5px;
+            color: #5a5a5a;
+            font-weight: bold;
+        }
+
+        .form-control {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .btn {
+            background-color: #b78628; /* Oro */
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #9c6b20; /* Oro más oscuro */
+        }
+
+        select {
+            height: 40px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            padding: 8px;
+        }
+
+        h2 {
+            color: #5a5a5a;
+            margin-top: 25px;
+            font-size: 22px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Diamond Price Prediction</h1>
+        
+        <form action="{{ url_for('predict_datapoint') }}" method="post">
+            <div class="mb-3">
+                <label class="form-label">Carat</label>
+                <input class="form-control" type="number" name="carat" placeholder="Enter carat value" step="0.01" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Depth</label>
+                <input class="form-control" type="number" name="depth" placeholder="Enter depth percentage" step="0.01" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Table</label>
+                <input class="form-control" type="number" name="table" placeholder="Enter table percentage" step="0.01" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">X (mm)</label>
+                <input class="form-control" type="number" name="x" placeholder="Enter length (X)" step="0.01" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Y (mm)</label>
+                <input class="form-control" type="number" name="y" placeholder="Enter width (Y)" step="0.01" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Z (mm)</label>
+                <input class="form-control" type="number" name="z" placeholder="Enter depth (Z)" step="0.01" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Cut</label>
+                <select class="form-control" name="cut" required>
+                    {% for cut_option in cut %}
+                        <option value="{{ cut_option }}">{{ cut_option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Color</label>
+                <select class="form-control" name="color" required>
+                    {% for color_option in color %}
+                        <option value="{{ color_option }}">{{ color_option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Clarity</label>
+                <select class="form-control" name="clarity" required>
+                    {% for clarity_option in clarity %}
+                        <option value="{{ clarity_option }}">{{ clarity_option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <input class="btn" type="submit" value="Get Price Estimate" />
+            </div>
+        </form>
+        
+        <h2>
+            Estimated Price: {{ results }}
+        </h2>
+    </div>
+</body>
+</html>
