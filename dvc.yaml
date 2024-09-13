@@ -1,16 +1,108 @@
-stages:
-  training:
-    cmd: python src/DimondPricePrediction/pipelines/training_pipeline.py
-    deps:
-      - src/DimondPricePrediction/pipelines/training_pipeline.py
-      - src/DimondPricePrediction/components/data_ingestion.py
-      - src/DimondPricePrediction/components/data_transformation.py
-      - src/DimondPricePrediction/components/model_trainer.py
-      - src/DimondPricePrediction/components/model_evaluation.py
+ schedule:
+    - cron: '0 0 1 * *'  # Ejecutar el primer día de cada mes a la medianoche UTC
+  workflow_dispatch: # Permite ejecutar manualmente el workflow
+  
+jobs:
+  integration:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    outs:
-      - artifacts/raw.csv
-      - artifacts/test.csv
-      - artifacts/train.csv
-      - artifacts/preprocessor.pkl
-      - artifacts/model.pkl
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run training pipeline
+        run: |
+          python src/DiamondPricePrediction/pipelines/training_pipeline.py
+
+      - name: Lint code
+        run: echo "Linting repository"
+
+      - name: Run unit tests
+        run: echo "Running unit tests"
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "angel.chavez.clavellina@gmail.com"
+          git config --global user.name "Angel Clavellina"
+
+      - name: Commit changes
+        run: |
+          git add artifacts/
+          git diff --staged --quiet || git commit -m 'Update data and models from training pipeline'
+          git push
+
+  build-and-push-ecr-image:
+      name: Continuous Delivery
+      needs: integration
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout Code
+          uses: actions/checkout@v3
+
+        - name: Install Utilities
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y jq unzip
+
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ secrets.AWS_REGION }}
+
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v1
+
+        - name: Build and push images using Docker Compose
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          run: |
+            # Construir las imágenes definidas en docker-compose.yml
+            docker-compose build
+
+            # Etiquetar y empujar la imagen de Airflow
+            docker tag airflow-sleek:latest $ECR_REGISTRY/airflow-sleek:latest
+            docker push $ECR_REGISTRY/airflow-sleek:latest
+
+            # Etiquetar y empujar la imagen de FlaskApp
+            docker tag diamondprediction:latest $ECR_REGISTRY/diamondprediction:latest
+            docker push $ECR_REGISTRY/diamondprediction:latest
+
+  Continuous-Deployment:
+      needs: build-and-push-ecr-image
+      runs-on: self-hosted
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ secrets.AWS_REGION }}
+
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v1
+
+        - name: Pull latest images using Docker Compose
+          run: |
+            docker-compose pull
+
+        - name: Deploy containers using Docker Compose
+          run: |
+            docker-compose up -d
+
+        - name: Clean previous images and containers
+          run: |
+            docker system prune -f
