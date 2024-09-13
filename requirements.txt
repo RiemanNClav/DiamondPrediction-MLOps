@@ -1,10 +1,6 @@
 pandas
 scikit-learn
 numpy
-seaborn
-ipykernel
 Flask
-mlflow==2.2.2
-apache-airflow
 pendulum
--e .
+apache-airflow

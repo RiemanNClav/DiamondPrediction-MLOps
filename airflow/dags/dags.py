@@ -9,13 +9,13 @@ from src.DimondPricePrediction.pipelines.training_pipeline import TrainingPipeli
 training_pipeline=TrainingPipeline()
 
 with DAG(
-    "gemstone_training_pipeline",
+    "hourly_training_pipeline",
     default_args={"retries": 2},
-    description="it is my training pipeline",
-    schedule="@weekly",# here you can test based on hour or mints but make sure here you container is up and running
-    start_date=pendulum.datetime(2024, 9, 12, tz="UTC"),
+    description="Hourly training pipeline",
+    schedule="0 * * * *",  # Ejecutar cada hora en el minuto 0
+    start_date=pendulum.datetime(2024, 9, 12, tz="America/Mexico_City"),
     catchup=False,
-    tags=["machine_learning ","classification","gemstone"],
+    tags=["machine_learning", "regression", "hourly"],
 ) as dag:
     
     dag.doc_md = __doc__
@@ -42,13 +42,13 @@ with DAG(
         training_pipeline.start_model_training(train_arr,test_arr)
 
 
-    def model_evaluation(**kwargs):
-        import numpy as np
-        ti = kwargs["ti"]
-        model_evaluation_artifact = ti.xcom_pull(task_ids="data_transformation", key="data_transformations_artifcat")
-        train_arr=np.array(model_evaluation_artifact["train_arr"])
-        test_arr=np.array(model_evaluation_artifact["test_arr"])
-        training_pipeline.start_model_evaluation(train_arr,test_arr)
+    #def model_evaluation(**kwargs):
+    #    import numpy as np
+     #   ti = kwargs["ti"]
+      #  model_evaluation_artifact = ti.xcom_pull(task_ids="data_transformation", key="data_transformations_artifcat")
+       # train_arr=np.array(model_evaluation_artifact["train_arr"])
+        #test_arr=np.array(model_evaluation_artifact["test_arr"])
+        #training_pipeline.start_model_evaluation(train_arr,test_arr)
     
     ## you have to config azure blob
     #def push_data_to_azureblob(**kwargs):
@@ -93,16 +93,16 @@ with DAG(
     """
     )
 
-    model_evaluation_task = PythonOperator(
-        task_id="model_evaluation",
-        python_callable=model_trainer,
-    )
-    model_evaluation_task.doc_md = dedent(
-        """\
+    #model_evaluation_task = PythonOperator(
+     #   task_id="model_evaluation",
+      #  python_callable=model_trainer,
+    #3)
+    #model_evaluation_task.doc_md = dedent(
+     #   """\
     #### model evaliation task
-    this task perform training
-    """
-    )
+    #this task perform training
+    #"""
+    #)
     
    
     #push_data_to_s3_task = PythonOperator(
@@ -111,4 +111,4 @@ with DAG(
        # )
 
 
-data_ingestion_task >> data_transform_task >> model_trainer_task >> model_evaluation_task
+data_ingestion_task >> data_transform_task >> model_trainer_task
