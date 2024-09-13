@@ -52,6 +52,7 @@ class TrainingPipeline:
             train_arr,test_arr=self.start_data_transformation(train_data_path,test_data_path)
             self.start_model_training(train_arr,test_arr)
             #self.start_model_evaluation(train_arr, test_arr)
+            logging.info('training pipeline it has completed!!  ')
         except Exception as e:
             raise customexception(e,sys)
         

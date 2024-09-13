@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   schedule:
   - cron: '0 0 1 * *'
+  push:
+    branches:
+      - main
 
 jobs:
   integration:
@@ -23,6 +26,8 @@ jobs:
       - name: Run training pipeline
         run: |
           python src/DiamondPricePrediction/pipelines/training_pipeline.py
+        env:
+          PYTHONPATH = src
 
       - name: Lint code
         run: echo "Linting repository"
