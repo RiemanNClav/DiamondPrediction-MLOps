@@ -24,10 +24,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run training pipeline
-        run: |
-          python artifact.py
-        env:
-          PYTHONPATH = src
+        run: python artifact.py
 
       - name: Lint code
         run: echo "Linting repository"
