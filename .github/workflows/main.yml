@@ -41,7 +41,7 @@ jobs:
         run: |
           git add artifacts/
           git diff --staged --quiet || git commit -m 'Update data and models from training pipeline'
-          git push
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/RiemanNClav/DiamondPrediction-MLOps.git
 
   build-and-push-ecr-image:
     name: Continuous Delivery
