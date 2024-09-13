@@ -25,7 +25,7 @@ jobs:
 
       - name: Run training pipeline
         run: |
-          python src/DiamondPricePrediction/pipelines/training_pipeline.py
+          python artifact.py
         env:
           PYTHONPATH = src
 
