@@ -1,6 +1,10 @@
- schedule:
-    - cron: '0 0 1 * *'  # Ejecutar el primer día de cada mes a la medianoche UTC
-  workflow_dispatch: # Permite ejecutar manualmente el workflow
+name: Scrape information
+
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: '0 0 1 * *'
+  workflow_dispatch:
   
 jobs:
   integration:
