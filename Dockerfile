@@ -11,4 +11,4 @@ RUN apt-get update && pip install -r requirements.txt
 
 
 # During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
-CMD ["gunicorn", "--bind", "80:80", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:80", "app:app"]
