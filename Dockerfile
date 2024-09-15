@@ -17,4 +17,4 @@ RUN apt-get update && pip install -r requirements.txt
 RUN pip install scikit-learn==1.3.2
 
 # Comando para ejecutar gunicorn con un timeout más alto (120 segundos)
-CMD ["gunicorn", "--bind", "0.0.0.0:80", "--timeout", "120", "app:app", "--debug"]
+CMD ["gunicorn", "--bind", "0.0.0.0:80", "--timeout", "120", "app:app"]
