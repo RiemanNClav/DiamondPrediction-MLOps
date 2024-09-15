@@ -39,6 +39,7 @@ jobs:
 
       - name: Commit changes
         run: |
+          git pull https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/RiemanNClav/DiamondPrediction-MLOps.git main --rebase
           git add artifacts/
           git diff --staged --quiet || git commit -m 'Update data and models from training pipeline'
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/RiemanNClav/DiamondPrediction-MLOps.git
