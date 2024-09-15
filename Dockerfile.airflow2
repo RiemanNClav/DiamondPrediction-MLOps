@@ -1,0 +1,19 @@
+FROM apache/airflow:latest
+
+# Cambiar al usuario root para instalar dependencias del sistema
+USER root
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    cmake \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Cambiar al usuario airflow para instalar dependencias de Python
+USER airflow
+
+# Copiar el archivo requirements.txt
+COPY requirements.txt /requirements.txt
+
+# Instalar dependencias de Python
+RUN pip install --no-cache-dir -r /requirements.txt
